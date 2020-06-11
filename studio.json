@@ -1,0 +1,290 @@
+{
+  "description": "Copy of 3.0 Joke (w/ Autopilot)",
+  "states": [
+    {
+      "name": "Trigger",
+      "type": "trigger",
+      "transitions": [
+        {
+          "event": "incomingMessage"
+        },
+        {
+          "event": "incomingCall"
+        },
+        {
+          "next": "call_user_1",
+          "event": "incomingRequest"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -1000,
+          "y": -310
+        }
+      }
+    },
+    {
+      "name": "split_1",
+      "type": "split-based-on",
+      "transitions": [
+        {
+          "next": "contactCenter",
+          "event": "noMatch"
+        },
+        {
+          "next": "function_joke",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "yes",
+              "arguments": [
+                "{{widgets.function_1.body}}"
+              ],
+              "type": "equal_to",
+              "value": "yes"
+            }
+          ]
+        },
+        {
+          "next": "say_noJoke",
+          "event": "match",
+          "conditions": [
+            {
+              "friendly_name": "no",
+              "arguments": [
+                "{{widgets.function_1.body}}"
+              ],
+              "type": "equal_to",
+              "value": "No"
+            }
+          ]
+        }
+      ],
+      "properties": {
+        "input": "{{widgets.function_1.body}}",
+        "offset": {
+          "x": -280,
+          "y": 520
+        }
+      }
+    },
+    {
+      "name": "contactCenter",
+      "type": "connect-call-to",
+      "transitions": [
+        {
+          "event": "callCompleted"
+        },
+        {
+          "event": "hangup"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 830,
+          "y": 1170
+        },
+        "caller_id": "{{contact.channel.address}}",
+        "noun": "number",
+        "to": "+15555555555",
+        "timeout": 30
+      }
+    },
+    {
+      "name": "function_joke",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "say_joke",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -660,
+          "y": 730
+        },
+        "url": "https://cherry-pointer-7337.twil.io/joke"
+      }
+    },
+    {
+      "name": "say_joke",
+      "type": "say-play",
+      "transitions": [
+        {
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Matthew",
+        "offset": {
+          "x": -740,
+          "y": 1170
+        },
+        "loop": 1,
+        "say": "Thanks. Here's your joke.\n\n\n{{widgets.function_joke.body}}",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "say_noJoke",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "contactCenter",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "voice": "Polly.Matthew",
+        "offset": {
+          "x": 110,
+          "y": 920
+        },
+        "loop": 1,
+        "say": "I guess you're not in the mood for a joke. I'll transfer you to an agent instead.",
+        "language": "en-US"
+      }
+    },
+    {
+      "name": "call_user_1",
+      "type": "make-outgoing-call-v2",
+      "transitions": [
+        {
+          "next": "say_play_1",
+          "event": "answered"
+        },
+        {
+          "event": "busy"
+        },
+        {
+          "event": "noAnswer"
+        },
+        {
+          "event": "failed"
+        }
+      ],
+      "properties": {
+        "machine_detection_speech_threshold": "2400",
+        "detect_answering_machine": false,
+        "send_digits": "",
+        "sip_auth_username": "",
+        "offset": {
+          "x": -130,
+          "y": -180
+        },
+        "recording_status_callback": "",
+        "sip_auth_password": "",
+        "recording_channels": "mono",
+        "timeout": 60,
+        "machine_detection": "Enable",
+        "trim": "true",
+        "record": false,
+        "machine_detection_speech_end_threshold": "1200",
+        "machine_detection_timeout": "30",
+        "from": "{{flow.channel.address}}",
+        "to": "{{contact.channel.address}}",
+        "machine_detection_silence_timeout": "5000"
+      }
+    },
+    {
+      "name": "mem",
+      "type": "set-variables",
+      "transitions": [
+        {
+          "next": "function_1",
+          "event": "next"
+        }
+      ],
+      "properties": {
+        "variables": [
+          {
+            "index": "0",
+            "value": "{{widgets.redirectToAutoPilot.Memory | url_encode}}",
+            "key": "answer"
+          }
+        ],
+        "offset": {
+          "x": -720,
+          "y": 110
+        }
+      }
+    },
+    {
+      "name": "function_1",
+      "type": "run-function",
+      "transitions": [
+        {
+          "next": "split_1",
+          "event": "success"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -760,
+          "y": 360
+        },
+        "parameters": [
+          {
+            "value": "{{flow.variables.answer}}",
+            "key": "answer"
+          }
+        ],
+        "url": "https://cherry-pointer-7337.twil.io/jsonParser"
+      }
+    },
+    {
+      "name": "redirectToAutoPilot",
+      "type": "add-twiml-redirect",
+      "transitions": [
+        {
+          "next": "mem",
+          "event": "return"
+        },
+        {
+          "event": "timeout"
+        },
+        {
+          "event": "fail"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": -250,
+          "y": 230
+        },
+        "method": "POST",
+        "url": "https://cherry-pointer-7337.twil.io/redirect?question={{flow.data.question | url_encode}}",
+        "timeout": "14400"
+      }
+    },
+    {
+      "name": "say_play_1",
+      "type": "say-play",
+      "transitions": [
+        {
+          "next": "redirectToAutoPilot",
+          "event": "audioComplete"
+        }
+      ],
+      "properties": {
+        "offset": {
+          "x": 210,
+          "y": 20
+        },
+        "loop": 1,
+        "say": "{{flow.data.statement}}"
+      }
+    }
+  ],
+  "initial_state": "Trigger",
+  "flags": {
+    "allow_concurrent_calls": true
+  }
+}
