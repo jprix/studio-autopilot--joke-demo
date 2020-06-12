@@ -1,0 +1,18 @@
+exports.handler = function(context, event, callback) {
+const VoiceResponse = require('twilio').twiml.VoiceResponse;
+console.log(event)
+const question = event.question
+
+const response = new VoiceResponse();
+const connect = response.connect();
+connect.autopilot(
+    {
+        TargetTask:"entryQuestion",
+        Memory: `{"question": "${question}"}`
+        
+    },
+        'UAa8c31184e377117d683b0b651dcd26bf')
+
+console.log(response.toString());
+callback(null,response)
+};
