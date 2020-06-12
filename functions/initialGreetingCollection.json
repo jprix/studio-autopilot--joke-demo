@@ -1,0 +1,37 @@
+exports.handler = function(context, event, callback) {
+	   const decode = require('urldecode')
+	  console.log(event.Memory)
+    const memory = JSON.parse(event.Memory)
+    const  {question} = memory
+	   console.log(question)
+
+
+	let apResonse = {
+	"actions": [
+		{
+			"collect": {
+				"name": "collect_comments",
+				"questions": [
+					{
+					//	"question": "would you like to hear a joke?",
+					"question": `${question}`,
+						"voice_digits": {
+							"mapping": {
+								"1": "Yes",
+								"2": "No"
+							},
+							"num_digits": 1
+						},
+						"name": "comments",
+						"type": "entryHandler"
+					}
+				],
+				"on_complete": {
+					"redirect": "task://function"
+				}
+			}
+		}
+	]
+}
+	callback(null, apResonse);
+};
