@@ -1,0 +1,32 @@
+exports.handler = function(context, event, callback) {
+    let twiml = new Twilio.twiml.VoiceResponse();
+    console.log(event)
+
+
+let response = {
+	"actions": [
+		{
+			"say": "Ok."
+		},
+		{
+			"handoff": {
+				"channel": "voice",
+				"uri": "https://webhooks.twilio.com/v1/Accounts/ACe76a02e260fab4a7f9af94d2d68e0056/Flows/FW46c5b5f73d0582dba36a6bda0b7280bf?FlowEvent=return&AP=complete",
+				"method": "POST"
+			}
+		}
+	]
+}
+
+try{
+    
+    callback(null, response)
+
+}
+
+catch(error){
+  //Code to handle error comes here
+}
+
+
+//sends json back to AutoPilot
