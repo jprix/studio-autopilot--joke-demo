@@ -1,1 +1,1 @@
-# studio-autopilot--joke-demo
+# studio-autopilot-joke-demo
